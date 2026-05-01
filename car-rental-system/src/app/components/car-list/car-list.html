@@ -1,0 +1,103 @@
+<div class="relative w-full h-[85vh] min-h-[600px] overflow-hidden bg-zinc-900">
+  <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=2000" 
+       class="w-full h-full object-cover opacity-80" 
+       alt="Fleet Hero">
+  
+  <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20"></div>
+
+  <div class="absolute inset-0 flex flex-col justify-center px-6">
+    <div class="max-w-7xl mx-auto w-full">
+      
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+        <div class="max-w-3xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 class="text-[clamp(3.5rem,10vw,6.5rem)] font-black tracking-tighter leading-[0.85] mb-8 italic uppercase text-white drop-shadow-2xl">
+            The Future <br>is in Your Hands.
+          </h1>
+          <p class="text-white/80 text-2xl font-medium tracking-tight max-w-xl leading-relaxed drop-shadow-md">
+            Curated high-performance mobility for the <span class="text-white underline decoration-black-400 decoration-4 underline-offset-8">modern visionary.</span>
+          </p>
+        </div>
+
+        <div class="relative w-full lg:w-[450px] group animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+          <div class="absolute -inset-1 bg-white/20 rounded-full blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+          <div class="relative">
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              placeholder="SEARCH_FLEET_ENTITY..."
+              class="w-full bg-white/10 backdrop-blur-2xl border border-white/20 py-7 px-10 rounded-full text-[11px] font-black uppercase tracking-[0.3em] outline-none text-white placeholder:text-white/60 focus:bg-white/20 transition-all shadow-2xl"
+            >
+            <div class="absolute right-10 top-1/2 -translate-y-1/2 flex items-center gap-4 border-l border-white/10 pl-6">
+              <span class="text-[10px] font-black text-white/100 transition-colors uppercase">
+                {{ filteredCars().length }} UNITS
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-6 py-32 selection:bg-black selection:text-white font-sans">
+  <div class="flex items-center gap-4 mb-16">
+    <span class="h-[2px] w-12 bg-black"></span>
+    <h3 class="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400">Available_Registry</h3>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    @for (car of filteredCars(); track car.id) {
+      <div class="group relative bg-white border border-zinc-100 rounded-[3.5rem] p-4 transition-all duration-700 hover:shadow-[0_64px_96px_-24px_rgba(0,0,0,0.12)] hover:-translate-y-3"
+           [class.opacity-75]="!car.isAvailable"> 
+        
+        <div class="absolute top-8 left-8 z-20 flex gap-2">
+          <span class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm border border-zinc-100">
+            {{car.type}}
+          </span>
+          @if (!car.isAvailable) { 
+            <span class="bg-black text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm italic">
+              Reserved
+            </span>
+          }
+        </div>
+
+        <div class="aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-zinc-50 relative">
+          <img [src]="car.imageUrl" class="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-1000 ease-out"
+               [class.grayscale]="!car.isAvailable"> 
+          
+          <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur px-5 py-3 rounded-3xl shadow-xl">
+             <p class="text-2xl font-black italic tracking-tighter leading-none text-zinc-900">${{car.pricePerDay}}</p> 
+             <p class="text-[8px] font-bold text-zinc-400 uppercase tracking-widest text-right">Daily Rate</p>
+          </div>
+        </div>
+
+        <div class="p-8">
+          <div class="mb-8">
+             <p class="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-2 italic">{{car.brand}}</p>
+             <h2 class="text-4xl font-black tracking-tighter uppercase italic text-zinc-900">{{car.model}}</h2>
+          </div>
+
+          <div class="flex gap-3">
+            <button [routerLink]="['/car', car.id]" 
+                    class="flex-1 py-5 rounded-[1.5rem] bg-zinc-50 font-black text-[10px] uppercase tracking-widest hover:bg-zinc-950 hover:text-white transition-all active:scale-95">
+              Details
+            </button>
+            
+            @if (car.isAvailable) { 
+              <button [routerLink]="['/booking', car.id]" 
+                      class="flex-[2] py-5 rounded-[1.5rem] bg-black text-white font-black text-[10px] uppercase tracking-widest hover:shadow-xl transition-all active:scale-95">
+                Dispatch Now
+              </button>
+            } @else {
+              <button disabled 
+                      class="flex-[2] py-5 rounded-[1.5rem] bg-zinc-50 text-zinc-300 font-black text-[10px] uppercase tracking-widest cursor-not-allowed">
+                Waitlisted
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

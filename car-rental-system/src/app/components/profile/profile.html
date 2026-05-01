@@ -1,0 +1,450 @@
+<div class="min-h-screen bg-zinc-50 px-6 py-12 font-sans selection:bg-emerald-500 selection:text-white">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-12">
+      <div>
+        <div class="inline-block px-3 py-1 bg-black rounded-lg mb-4">
+          <span class="text-[9px] font-black uppercase tracking-[0.3em] text-white">Member_Access</span>
+        </div>
+        <h1 class="text-5xl font-black tracking-tighter uppercase italic">My_Reservations</h1>
+        <p class="text-zinc-400 font-bold text-xs mt-2 uppercase tracking-widest">
+          Active Sessions for: <span class="text-black">{{ db.currentUser()?.name }}</span>
+        </p>
+      </div>
+
+      <div class="flex gap-4">
+        <button (click)="isTerminating.set(true)" 
+                class="px-6 py-4 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-zinc-200 active:scale-95">
+          View_History
+        </button>
+        <button (click)="handleLogout()" 
+                class="px-6 py-4 border-2 border-zinc-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 hover:border-rose-100 hover:text-rose-600 transition-all active:scale-95">
+          Sign_Out
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white p-10 rounded-[3rem] mb-12 border border-zinc-100 shadow-xl shadow-zinc-200/30 flex items-center justify-between relative overflow-hidden group">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+      <div>
+        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-2">Available_Wallet_Credits</p>
+        <h2 class="text-5xl font-black tracking-tighter text-emerald-600 italic">
+          ${{ db.currentUser()?.balance?.toLocaleString() }}
+        </h2>
+      </div>
+      <div class="h-16 w-16 rounded-[2rem] bg-emerald-50 flex items-center justify-center border border-emerald-100">
+        <span class="text-emerald-500 font-black text-2xl">$</span>
+      </div>
+    </div>
+
+    <div class="space-y-8">
+      @for (booking of userBookings(); track booking.id || booking._id) {
+        <div class="bg-white rounded-[3rem] p-10 shadow-xl shadow-zinc-200/50 border border-zinc-100 flex flex-col md:flex-row gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+          
+          @if (booking.status === 'pending_termination') {
+            <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
+              <div class="bg-amber-500 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-amber-500/20 italic animate-pulse">
+                ⏳ Awaiting_Admin_Approval
+              </div>
+            </div>
+          }
+
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="w-2 h-2 rounded-full" [class]="booking.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'"></span>
+              <span class="text-[10px] font-black uppercase tracking-widest" [class]="booking.status === 'active' ? 'text-emerald-600' : 'text-amber-600'">
+                {{ booking.status === 'active' ? 'Unit_Active' : 'Under_Review' }}
+              </span>
+            </div>
+            <h2 class="text-4xl font-black tracking-tighter italic mb-1 uppercase">{{ booking.carName }}</h2>
+            <p class="text-zinc-400 text-[9px] font-black uppercase tracking-[0.2em] mb-8">Ref_ID: {{ booking.id || booking._id }}</p>
+            
+            <div class="grid grid-cols-2 gap-8 p-6 bg-zinc-50 rounded-[2rem] border border-zinc-100">
+              <div>
+                <label class="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-2">Pick_Up</label>
+                <p class="font-black text-xs uppercase italic">{{ booking.startDate | date: 'MMM d, y | h:mm a' }}</p>
+              </div>
+              <div>
+                <label class="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-2">Return_By</label>
+                <p class="font-black text-xs uppercase italic text-emerald-600">{{ booking.endDate | date: 'MMM d, y | h:mm a' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 md:border-x border-zinc-100 md:px-10 py-4">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                  <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Service_Protocol</span>
+                  <span class="text-[10px] font-black uppercase bg-zinc-900 text-white px-3 py-1 rounded-full italic">{{ booking.service }}</span>
+                </div>
+                
+                @if (booking.service?.toLowerCase() === 'delivery') {
+                  <div class="space-y-2">
+                      <span class="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Delivery_Point</span>
+                      <p class="text-[10px] font-bold text-zinc-600 bg-zinc-50 p-4 rounded-2xl border border-zinc-100 italic">
+                        {{ booking.address }}
+                      </p>
+                  </div>
+                }
+
+                <div class="flex justify-between items-center">
+                  <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Variant_Spec</span>
+                  <div class="flex items-center gap-3">
+                      <div class="w-4 h-4 rounded-full border border-white shadow-sm ring-1 ring-zinc-200" [style.background]="booking.color"></div>
+                      <span class="text-[10px] font-black uppercase italic">{{ booking.color }}</span>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="w-full md:w-48 flex flex-col justify-center items-end text-right">
+            <label class="text-[8px] font-black text-zinc-300 uppercase tracking-widest mb-1">Total_Settled</label>
+            <p class="text-4xl font-black tracking-tighter italic mb-6 text-zinc-900">${{ booking.total }}</p>
+            
+            @if (booking.status === 'active') {
+                <button (click)="requestTermination(booking)" 
+                        [class.bg-amber-500]="isRentalOverdue(booking)"
+                        [class.bg-rose-500]="!isRentalOverdue(booking)"
+                        class="w-full py-3 text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95">
+                  {{ isRentalOverdue(booking) ? 'RETURN REQUIRED' : (isFutureBooking(booking) ? 'Cancel_Reservation' : 'Terminate_Early') }}
+                </button>
+              } @else {
+              <div class="inline-flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
+                <span class="text-[9px] font-black uppercase tracking-tighter text-amber-600 italic">Review_Active</span>
+              </div>
+            }
+          </div>
+        </div>
+      } @empty {
+        <div class="bg-zinc-100 rounded-[4rem] p-24 text-center border-2 border-dashed border-zinc-200">
+          <div class="w-20 h-20 bg-zinc-200 rounded-full mx-auto mb-8 flex items-center justify-center">
+            <span class="text-3xl grayscale opacity-50">🚗</span>
+          </div>
+          <p class="text-zinc-400 font-black uppercase tracking-[0.4em] text-[10px] mb-6">No_Active_Fleet_Deployments</p>
+          <button routerLink="/" class="px-8 py-4 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all active:scale-95">
+            Initialize_First_Rental →
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+
+@if (isTerminating()) {
+  <div class="fixed inset-0 bg-white/95 backdrop-blur-2xl z-[100] p-8 flex items-center justify-center animate-in fade-in duration-300">
+    <div class="max-w-4xl w-full max-h-[90vh] flex flex-col">
+
+      <div class="flex justify-between items-end mb-8 border-b-4 border-black pb-6">
+        <div>
+          <p class="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-1">
+            {{ viewingPending() ? 'Request_Status' : selectedBooking() ? 'Security_Protocol' : 'Database_Archive' }}
+          </p>
+          <h2 class="text-5xl font-black tracking-tighter uppercase italic">
+            @if (isRentalOverdue(selectedBooking())) {
+              <span class="text-rose-600">Time_Expired_Return</span>
+            } @else {
+              {{ viewingPending() ? 'Review_Request' : selectedBooking() ? (isFutureBooking(selectedBooking()) ? 'Cancel_Protocol' : 'Return_Protocol') : 'Transaction_History' }}
+            }
+          </h2>
+        </div>
+        <button (click)="viewingPending() ? closeArchive() : selectedBooking() ? selectedBooking.set(null) : isTerminating.set(false)"
+          class="px-8 py-4 bg-black text-white text-[10px] font-black uppercase rounded-2xl hover:bg-zinc-800 tracking-widest transition-all shadow-xl shadow-zinc-200">
+          {{ selectedBooking() || viewingPending() ? '← Back_to_History' : 'Close_Archive [ESC]' }}
+        </button>
+      </div>
+
+      @if (!selectedBooking() && !viewingPending()) {
+        <div class="mb-6 relative group">
+          <div class="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none group-focus-within:text-emerald-500 transition-colors">🔍</div>
+          <input 
+            type="text" 
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="SEARCH BY UNIT, ID, DATE, OR AMOUNT..." 
+            class="w-full bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] py-6 pl-14 pr-8 font-black text-[10px] uppercase tracking-[0.2em] outline-none focus:border-emerald-500/30 focus:bg-white transition-all shadow-sm"
+          >
+          
+          @if (searchQuery()) {
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 animate-in fade-in zoom-in">
+              <span class="bg-zinc-900 text-white text-[8px] font-black px-3 py-1 rounded-full italic">
+                {{ filteredHistory().length }} MATCHES
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-4 space-y-4 custom-scrollbar">
+          @for (b of filteredHistory(); track b.id || b._id) {
+            <div class="group bg-white border-2 border-zinc-100 p-8 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center gap-6 transition-all hover:border-zinc-300 shadow-sm relative overflow-hidden">
+              
+              @if (b.status === 'active') {
+                <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+              }
+
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest border" 
+                    [class]="{
+                      'bg-emerald-500 text-white border-emerald-500': b.status === 'active',
+                      'bg-zinc-100 text-zinc-500 border-zinc-200': (b.status === 'terminated' || b.status === 'finished' || b.status === 'completed') && !b.terminationRequest?.reason?.includes('CANCELLED'),
+                      'bg-rose-50 text-rose-600 border-rose-100': b.status === 'cancelled' || b.terminationRequest?.reason?.includes('CANCELLED'),
+                      'bg-amber-50 text-amber-600 border-amber-100': b.status === 'pending_termination'
+                    }">
+                    {{ b.terminationRequest?.reason?.includes('CANCELLED') ? 'SYSTEM_CANCELLED' : b.status?.replace('_', ' ') }}
+                  </span>
+                  <span class="text-[9px] font-black text-zinc-300 uppercase">#{{ b.id || b._id }}</span>
+                </div>
+                <h3 class="font-black text-2xl uppercase italic tracking-tighter">{{ b.carName }}</h3>
+                <p class="text-[10px] font-bold text-zinc-500 uppercase mt-1">
+                  <span class="text-zinc-300">SCHEDULED:</span> {{ b.startDate | date: 'MMMM d, y' }}
+                </p>
+              </div>
+
+              <div class="flex gap-8 items-center px-10 border-x border-zinc-100">
+                <div class="text-center">
+                  <p class="text-[8px] font-black text-zinc-400 uppercase mb-1">Source</p>
+                  <p class="text-[9px] font-black uppercase italic" [class]="b.id ? 'text-emerald-600' : 'text-zinc-400'">
+                    {{ b.id ? 'LIVE_DB' : 'ARCHIVE' }}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[8px] font-black text-zinc-400 uppercase mb-1">Settled</p>
+                  <p class="text-2xl font-black italic tracking-tighter text-zinc-900">${{ b.total?.toLocaleString() }}</p>
+                </div>
+              </div>
+
+              <div class="w-full md:w-auto">
+                @if (b.status === 'active') {
+                  <button (click)="requestTermination(b)" class="w-full md:w-40 py-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest rounded-2xl hover:bg-rose-600 transition-all shadow-lg shadow-rose-200">
+                    {{ isFutureBooking(b) ? 'Cancel' : 'Terminate' }}
+                  </button>
+                } @else if (b.status === 'pending_termination') {
+                  <button (click)="viewRequestDetails(b)" class="w-full md:w-40 py-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-200 italic">Review_Request</button>
+                } @else {
+                  <div class="w-full md:w-40 py-4 bg-zinc-50 text-zinc-300 text-[9px] font-black uppercase tracking-widest rounded-2xl text-center border border-zinc-100 opacity-60 italic">Record_Closed</div>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="py-24 text-center border-2 border-dashed border-zinc-100 rounded-[3rem]">
+              <p class="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Zero records match "{{ searchQuery() }}"</p>
+            </div>
+          }
+        </div>
+      }
+
+      @else if (selectedBooking() && !viewingPending()) {
+        <div class="bg-white p-12 rounded-[4rem] border border-zinc-100 shadow-2xl space-y-10 animate-in slide-in-from-right-8 duration-500">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            
+            <div class="space-y-6">
+              <div>
+                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 block mb-3">Unit_Under_Review</label>
+                <div class="bg-zinc-900 text-white p-6 rounded-[2rem] italic">
+                  <h4 class="text-2xl font-black uppercase tracking-tighter">{{ selectedBooking().carName }}</h4>
+                  <p class="text-[10px] text-zinc-400 font-bold uppercase mt-1">Ref: {{ selectedBooking().id || selectedBooking()._id }}</p>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between items-end mb-3">
+                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400">Estimated_Refund</label>
+                  @if (returnForm().method === 'company_pickup' && !isFutureBooking(selectedBooking())) {
+                    <span class="text-[8px] font-black text-rose-500 uppercase italic">-$100 Valet_Fee Included</span>
+                  }
+                </div>
+                <div [class]="isFutureBooking(selectedBooking()) ? 'bg-blue-50 border-blue-100' : 'bg-emerald-50 border-emerald-100'" 
+                    class="border p-6 rounded-[2rem] transition-colors">
+                  <p [class]="isFutureBooking(selectedBooking()) ? 'text-blue-600' : 'text-emerald-600'" 
+                    class="text-4xl font-black italic tracking-tighter">
+                    {{ calculateEstimatedRefund(selectedBooking()).toLocaleString() }}
+                  </p>
+                  <p class="text-[8px] font-bold uppercase opacity-60 mt-1">Final amount subject to inspection</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div>
+                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 block mb-3">Reason_for_Request</label>
+                <select [(ngModel)]="returnForm().reason" class="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 font-bold text-xs uppercase tracking-widest outline-none cursor-pointer hover:border-zinc-300 transition-all appearance-none">
+                  <option value="Finished renting">Finished renting / Unit Return</option>
+                  <option value="Change of plans">Change of plans</option>
+                  <option value="Found a better deal">Found a better deal</option>
+                  <option value="Vehicle issue">Vehicle issue</option>
+                  <option value="Personal emergency">Personal emergency</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              @if (!isFutureBooking(selectedBooking())) {
+                <div>
+                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 block mb-3">Return_Logistics</label>
+                  <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button (click)="returnForm.set({...returnForm(), method: 'office_dropoff'})" 
+                            [class]="returnForm().method === 'office_dropoff' ? 'bg-black text-white' : 'bg-zinc-50 text-zinc-400'" 
+                            class="py-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Office_Drop</button>
+                    <button (click)="returnForm.set({...returnForm(), method: 'company_pickup'})" 
+                            [class]="returnForm().method === 'company_pickup' ? 'bg-rose-600 text-white' : 'bg-zinc-50 text-zinc-400'" 
+                            class="py-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Valet_Pickup</button>
+                  </div>
+                  
+                  @if (returnForm().method === 'company_pickup') {
+                    <div class="space-y-4 animate-in slide-in-from-top-4 duration-300">
+                      <input type="text" [(ngModel)]="returnForm().address" placeholder="ENTER PICKUP ADDRESS..." 
+                            class="w-full bg-zinc-50 border-2 border-zinc-200 rounded-2xl p-4 font-bold text-xs uppercase tracking-widest outline-none focus:border-rose-500 transition-all placeholder:text-zinc-300">
+                      <select [(ngModel)]="returnForm().timeSlot" class="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 font-bold text-xs uppercase tracking-widest outline-none appearance-none cursor-pointer">
+                        <option value="08:00 AM - 10:00 AM">08:00 AM - 10:00 AM</option>
+                        <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                        <option value="01:00 PM - 03:00 PM">01:00 PM - 03:00 PM</option>
+                        <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
+                      </select>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="p-10 bg-blue-50/50 rounded-[2rem] border-2 border-dashed border-blue-200 text-center">
+                  <p class="text-[9px] font-black uppercase text-blue-400 tracking-widest">Digital_Void_Active</p>
+                  <p class="text-[10px] font-bold text-blue-400 uppercase italic">Unit not deployed. Keys remain at terminal. Direct cancellation eligible.</p>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <button (click)="confirmReturn()" [disabled]="!isFutureBooking(selectedBooking()) && returnForm().method === 'company_pickup' && !returnForm().address" 
+            class="w-full py-6 bg-black text-white rounded-[2rem] font-black uppercase tracking-[0.4em] hover:bg-zinc-800 transition-all disabled:opacity-30">
+            {{ isFutureBooking(selectedBooking()) ? 'Initialize_Cancellation' : 'Authorize_Termination' }} →
+          </button>
+        </div>
+      }
+
+      @else if (viewingPending()) {
+        <div class="bg-white p-12 rounded-[4rem] border border-zinc-100 shadow-2xl space-y-8 animate-in zoom-in duration-300">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
+              <p class="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-2">Booking_ID</p>
+              <p class="font-black text-lg italic uppercase">#{{ selectedBooking()?.id || selectedBooking()?._id }}</p>
+            </div>
+            <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+              <p class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-2">Refund_Amount</p>
+              <p class="font-black text-2xl text-emerald-700 italic">${{ selectedBooking()?.refundAmount | number:'1.2-2' }}</p>
+            </div>
+            <div class="bg-zinc-900 p-6 rounded-3xl text-white">
+              <p class="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-2">Return_Mode</p>
+              <p class="font-black text-lg italic uppercase">{{ selectedBooking()?.returnMethod === 'company_pickup' ? 'Valet Pickup' : 'Office Dropoff' }}</p>
+            </div>
+          </div>
+
+          @if (selectedBooking()?.returnMethod === 'company_pickup') {
+            <div class="p-8 bg-zinc-50 rounded-[2.5rem] border-2 border-dashed border-zinc-200">
+              <div class="flex flex-col md:flex-row justify-between gap-6 mb-8">
+                <div>
+                  <label class="text-[9px] font-black text-zinc-400 uppercase tracking-widest block mb-2">Pickup_Location</label>
+                  <p class="font-bold text-xs uppercase italic text-zinc-600">{{ selectedBooking()?.pickupAddress }}</p>
+                </div>
+                <div class="text-right">
+                  <label class="text-[9px] font-black text-zinc-400 uppercase tracking-widest block mb-2">Scheduled_Window</label>
+                  <p class="font-black text-xs uppercase italic text-black">{{ selectedBooking()?.pickupWindow }}</p>
+                </div>
+              </div>
+              <div class="pt-8 border-t border-zinc-200 flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-black uppercase text-rose-500 italic tracking-tighter">Delay in pickup?</p>
+                  <p class="text-[8px] font-bold text-zinc-400 uppercase italic">Contact dispatch for priority assistance</p>
+                </div>
+                <div class="flex gap-3">
+                  <a href="tel:+63455981042" class="px-5 py-3 bg-white border border-zinc-200 rounded-xl text-[9px] font-black uppercase hover:bg-zinc-100 transition-all">Call_Support</a>
+                  <a href="mailto:support@hau.edu.ph" class="px-5 py-3 bg-black text-white rounded-xl text-[9px] font-black uppercase hover:bg-zinc-800 transition-all">Email_Dispatch</a>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="p-10 bg-zinc-50 rounded-[2.5rem] text-center border-2 border-dashed border-zinc-100">
+              <p class="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] mb-2">Protocol: Key_Surrender</p>
+              <p class="text-xs font-bold text-zinc-500 uppercase italic leading-relaxed">Please proceed to the HAU car terminal to surrender keys and finalize the inspection.</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @if (db.modal().show) {
+  <div class="fixed inset-0 bg-white/60 backdrop-blur-3xl z-[200] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+    <div class="bg-black p-12 rounded-[4rem] max-w-sm w-full text-center shadow-[0_40px_100px_rgba(0,0,0,0.3)] border border-zinc-800">
+      <div class="w-20 h-20 bg-zinc-900 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center border border-zinc-800">
+        @if (db.modal().type === 'success') { <span class="text-3xl">✅</span> }
+        @else if (db.modal().type === 'error') { <span class="text-3xl">⚠️</span> }
+        @else { <span class="text-3xl animate-pulse">⚡</span> }
+      </div>
+      <p class="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">System_Broadcast</p>
+      <h3 class="text-white text-3xl font-black uppercase italic tracking-tighter mb-4">{{ db.modal().title }}</h3>
+      <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-10 px-4">{{ db.modal().message }}</p>
+      <div class="flex flex-col gap-3">
+        @if (db.modal().type === 'confirm') {
+        <button (click)="db.modal().action?.(); db.closePopup()" class="w-full py-5 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:bg-emerald-400 transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
+          Execute_Command
+        </button>
+        }
+        <button (click)="db.closePopup()" class="w-full py-5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:bg-zinc-800 transition-all border border-zinc-800">
+          {{ db.modal().type === 'confirm' ? 'Abort_Mission' : 'Acknowledge' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+
+
+
+
+
+
+
+  @if (db.modal().show) {
+    <div class="fixed inset-0 bg-white/60 backdrop-blur-3xl z-[200] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+      <div class="bg-black p-12 rounded-[4rem] max-w-sm w-full text-center shadow-[0_40px_100px_rgba(0,0,0,0.3)] border border-zinc-800">
+        
+        <div class="w-20 h-20 bg-zinc-900 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center border border-zinc-800">
+          @if (db.modal().type === 'success') { <span class="text-3xl">✅</span> }
+          @else if (db.modal().type === 'error') { <span class="text-3xl">⚠️</span> }
+          @else { <span class="text-3xl animate-pulse">⚡</span> }
+        </div>
+
+        <p class="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">System_Broadcast</p>
+        <h3 class="text-white text-3xl font-black uppercase italic tracking-tighter mb-4">{{ db.modal().title }}</h3>
+        <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-10 px-4">{{ db.modal().message }}</p>
+        
+        <div class="flex flex-col gap-3">
+          @if (db.modal().type === 'confirm') {
+            <button (click)="db.modal().action?.(); db.closePopup()" 
+                    class="w-full py-5 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:bg-emerald-400 transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
+              Execute_Command
+            </button>
+          }
+          
+          <button (click)="db.closePopup()" 
+                  class="w-full py-5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:bg-zinc-800 transition-all border border-zinc-800">
+            {{ db.modal().type === 'confirm' ? 'Abort_Mission' : 'Acknowledge' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+  
+</div>

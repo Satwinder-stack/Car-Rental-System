@@ -1,0 +1,17 @@
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-100 px-8 py-4 flex justify-between items-center">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+      <span class="text-white font-black text-xs italic">SR</span>
+    </div>
+    <span class="text-xl font-black tracking-tighter uppercase font-display">SwiftRent</span>
+  </div>
+  
+  <div class="flex gap-6 items-center">
+    <a routerLink="/" routerLinkActive="text-black" class="text-sm font-bold text-zinc-400 hover:text-black transition-all">Fleet</a>
+    <a routerLink="/admin" routerLinkActive="text-black" class="text-sm font-bold text-zinc-400 hover:text-black transition-all">Dashboard</a>
+    <button class="bg-black text-white px-5 py-2.5 rounded-full text-xs font-bold hover:scale-105 transition-transform active:scale-95">
+      Sign In
+    </button>
+  </div>
+</nav>
+<router-outlet></router-outlet>

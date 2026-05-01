@@ -1,0 +1,117 @@
+@if (car(); as selectedCar) {
+<div class="min-h-screen bg-white pb-32 selection:bg-black selection:text-white">
+  
+  <div class="relative h-[85vh] w-full overflow-hidden bg-zinc-900 group">
+    <img [src]="selectedCar.imageUrl" 
+         [alt]="selectedCar.model"
+         class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-[3000ms] ease-out">
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-black/20"></div>
+    
+    <div class="absolute top-12 left-12 right-12 flex justify-between items-start z-20">
+      <div class="flex items-center gap-4 bg-white/10 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[9px] font-black text-white uppercase tracking-[0.3em]">System_Active // Unit_0{{selectedCar.id}}</span>
+      </div>
+      <button routerLink="/" class="p-4 bg-white/10 backdrop-blur-xl border border-white/10 rounded-full hover:bg-white hover:text-black transition-all group/btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="absolute bottom-24 left-12 max-w-4xl animate-in fade-in slide-in-from-bottom-10 duration-1000">
+      <p class="text-emerald-400 text-xs font-black uppercase tracking-[0.5em] mb-6 italic">
+        {{ selectedCar.brand }} Engineering Core
+      </p>
+      <h1 class="text-white text-[clamp(4rem,12vw,9rem)] font-black uppercase italic tracking-tighter leading-[0.8] mb-8">
+        {{ selectedCar.model }}
+      </h1>
+      
+      <div class="flex flex-wrap gap-4">
+        <span class="px-6 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest">
+          {{ selectedCar.type }}
+        </span>
+        <span class="px-6 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest">
+          Full Carbon Fiber Monocoque
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 -translate-y-16 z-30 relative">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 bg-zinc-950 p-1 rounded-[4rem] overflow-hidden shadow-2xl">
+      <div class="bg-zinc-900 p-12 text-center group hover:bg-zinc-800 transition-colors">
+        <p class="text-zinc-500 text-[9px] font-black uppercase tracking-widest mb-4">Daily Rate</p>
+        <p class="text-4xl text-white font-black italic tracking-tighter">${{ selectedCar.pricePerDay }}</p>
+      </div>
+      <div class="bg-zinc-900 p-12 text-center group hover:bg-zinc-800 transition-colors">
+        <p class="text-zinc-500 text-[9px] font-black uppercase tracking-widest mb-4">Acceleration</p>
+        <p class="text-4xl text-white font-black italic tracking-tighter">2.1<span class="text-sm">s</span></p>
+      </div>
+      <div class="bg-zinc-900 p-12 text-center group hover:bg-zinc-800 transition-colors">
+        <p class="text-zinc-500 text-[9px] font-black uppercase tracking-widest mb-4">Top Speed</p>
+        <p class="text-4xl text-white font-black italic tracking-tighter">320<span class="text-sm">km/h</span></p>
+      </div>
+      <div class="bg-zinc-900 p-12 text-center group hover:bg-zinc-800 transition-colors">
+        <p class="text-zinc-500 text-[9px] font-black uppercase tracking-widest mb-4">Range / Fuel</p>
+        <p class="text-4xl text-white font-black italic tracking-tighter">650<span class="text-sm">km</span></p>
+      </div>
+    </div>
+
+    <div class="mt-32 grid lg:grid-cols-12 gap-24">
+      
+      <div class="lg:col-span-7">
+        <h3 class="text-3xl font-black uppercase italic tracking-tighter mb-10">Unit Description</h3>
+        <p class="text-zinc-500 text-xl leading-relaxed font-medium mb-16">
+          The {{ selectedCar.brand }} {{ selectedCar.model }} represents the pinnacle of modern mobility. Engineered for those who demand performance without compromise, this unit features a recalibrated suspension system, aerodynamic active aero-flaps, and a bespoke interior crafted from recycled ocean plastics and premium vegan leather.
+        </p>
+
+        <h3 class="text-3xl font-black uppercase italic tracking-tighter mb-10">Standard Equipment</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          @for (feature of ['Biometric Ignition', 'AI-Driven HUD', 'Level 3 Autonomous Suite', 'Adaptive Air Suspension', '360° Neural Camera']; track feature) {
+            <div class="flex items-center gap-6 p-6 border border-zinc-100 rounded-3xl hover:bg-zinc-50 transition-all">
+              <span class="w-2 h-2 rounded-full bg-zinc-950"></span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-zinc-600">{{ feature }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="p-12 border-2 border-zinc-100 rounded-[4rem] sticky top-12">
+          <div class="flex justify-between items-center mb-12">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Availability Status</p>
+              @if (selectedCar.isAvailable) {
+                <span class="text-emerald-500 text-sm font-black uppercase tracking-widest italic">● Ready for Dispatch</span>
+              } @else {
+                <span class="text-rose-500 text-sm font-black uppercase tracking-widest italic">○ Unit Engaged</span>
+              }
+            </div>
+          </div>
+
+          <p class="text-zinc-400 text-sm leading-relaxed mb-12">
+            All rentals include comprehensive insurance, localized charging network access, and 24/7 technical concierge services.
+          </p>
+
+          <button [routerLink]="['/booking', selectedCar.id]" 
+                  [disabled]="!selectedCar.isAvailable"
+                  class="w-full py-8 bg-black text-white rounded-[2rem] font-black text-xl hover:bg-emerald-500 transition-all active:scale-95 uppercase disabled:bg-zinc-100 disabled:text-zinc-300 disabled:cursor-not-allowed">
+            {{ selectedCar.isAvailable ? 'Initialize Booking' : 'Waitlist Only' }}
+          </button>
+          
+          <button routerLink="/" class="w-full mt-4 py-4 text-zinc-400 font-black text-[9px] uppercase tracking-[0.4em] hover:text-black transition-colors">
+            Return to Fleet Inventory
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+} @else {
+  <div class="h-screen flex items-center justify-center bg-zinc-950">
+    <div class="text-center">
+      <div class="w-16 h-[1px] bg-emerald-500 mx-auto mb-8 animate-pulse"></div>
+      <p class="text-white font-black text-[10px] uppercase tracking-[1em] animate-pulse">Syncing_Unit_Data</p>
+    </div>
+  </div>
+}

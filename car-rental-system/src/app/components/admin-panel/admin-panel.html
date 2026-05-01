@@ -1,0 +1,166 @@
+<div class="max-w-7xl mx-auto py-16 px-6 space-y-20 font-sans">
+  
+  <div class="flex justify-between items-end">
+    <h1 class="text-6xl font-black tracking-tighter uppercase italic text-zinc-900">System Ledger</h1>
+    <div class="text-right">
+      <p class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Fleet Telemetry Status</p>
+      <p class="text-emerald-500 font-bold flex items-center justify-end gap-2 text-[11px]">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        DATABASE_SYNC_ACTIVE_v1.0.9
+      </p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-4 gap-8">
+    <div class="bg-zinc-950 text-white p-10 rounded-[3rem] shadow-2xl shadow-zinc-950/20">
+      <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-2">Net Gross Revenue</p>
+      <h2 class="text-4xl font-black italic text-emerald-400">${{ totalRevenue().toLocaleString() }}</h2>
+    </div>
+    
+    <div class="bg-white border border-zinc-200 p-10 rounded-[3rem]">
+      <p class="text-zinc-400 font-bold text-[10px] uppercase tracking-widest mb-2">Units in Fleet</p>
+      <h2 class="text-4xl font-black text-zinc-900">{{ db.cars().length }} <span class="text-xs uppercase italic text-zinc-400">Total</span></h2>
+    </div>
+
+    <div class="bg-white border border-zinc-200 p-10 rounded-[3rem]">
+      <p class="text-zinc-400 font-bold text-[10px] uppercase tracking-widest mb-2">Active Deployments</p>
+      <h2 class="text-4xl font-black text-emerald-600">{{ activeFleetCount() }} <span class="text-xs uppercase italic text-zinc-400">Units</span></h2>
+    </div>
+
+    <div class="bg-white border border-zinc-200 p-10 rounded-[3rem]">
+      <p class="text-zinc-400 font-bold text-[10px] uppercase tracking-widest mb-2">Refund Queue</p>
+      <h2 class="text-4xl font-black text-rose-500">{{ pendingRefunds().length }} <span class="text-xs uppercase italic text-zinc-400">Pending</span></h2>
+    </div>
+  </div>
+
+  @if (pendingRefunds().length > 0) {
+  <section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <h3 class="text-sm font-black uppercase tracking-[0.3em] mb-6 italic text-rose-500">01. Urgent: Refund Authorization Queue</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      @for (req of pendingRefunds(); track req.id) {
+        <div class="bg-white border-2 border-rose-100 rounded-[3rem] p-8 hover:border-rose-500 transition-all shadow-xl shadow-rose-100/10">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">{{ req.carName }}</p>
+              <h4 class="text-xl font-black italic text-zinc-900">#{{ req.id }}</h4>
+              <p class="text-[10px] font-bold text-zinc-500 underline">{{ req.user }}</p>
+            </div>
+            <div class="text-right">
+              <span class="bg-rose-100 text-rose-700 text-[8px] font-black px-3 py-1 rounded-full uppercase">Action_Required</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <p class="text-[8px] font-black text-zinc-400 uppercase mb-1 italic">Method</p>
+              <p class="text-[10px] font-black uppercase">{{ req.terminationRequest?.returnMethod?.replace('_', ' ') }}</p>
+            </div>
+            <div class="p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <p class="text-[8px] font-black text-zinc-400 uppercase mb-1 italic">Reason</p>
+              <p class="text-[10px] font-black uppercase truncate">{{ req.terminationRequest?.reason }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-6 border-t border-zinc-100">
+            <div>
+              <p class="text-[8px] font-black text-zinc-400 uppercase">Authorize_Refund</p>
+              <p class="text-3xl font-black text-emerald-600 italic">${{ (Number(req.terminationRequest?.estimatedRefund) || Number(req.estimatedRefund) || 0).toLocaleString() }}</p>
+            </div>
+            <button type="button" 
+                    (click)="approveRefund(req)" 
+                    class="relative z-50 pointer-events-auto cursor-pointer bg-zinc-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500 hover:text-black transition-all active:scale-95">
+              Confirm_Deposit
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+  }
+
+  <section>
+    <h3 class="text-sm font-black uppercase tracking-[0.3em] mb-6 italic text-zinc-400">02. Fleet Operational Status</h3>
+    <div class="bg-white border border-zinc-100 rounded-[3rem] overflow-hidden shadow-sm">
+      <table class="w-full text-left">
+        <thead class="bg-zinc-50 border-b border-zinc-100">
+          <tr>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Unit_Identifier</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Vehicle_Entity</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Telemetry_Status</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-50">
+          @for (car of db.cars(); track car.id) {
+            <tr class="hover:bg-zinc-50/50 transition-colors">
+              <td class="px-8 py-6 font-mono text-[10px] text-zinc-400">SR-UNIT-{{car.id}}</td>
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-2xl bg-zinc-100 overflow-hidden border border-zinc-200">
+                    <img [src]="car.image" class="w-full h-full object-cover">
+                  </div>
+                  <span class="font-black text-zinc-900 italic uppercase tracking-tighter">{{car.brand}} {{car.model}}</span>
+                </div>
+              </td>
+              <td class="px-8 py-6">
+                <span [class]="car.isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                      class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest">
+                  {{ car.isAvailable ? 'Online / Available' : 'Occupied / Rented' }}
+                </span>
+              </td>
+              <td class="px-8 py-6 text-right">
+                <button (click)="db.toggleAvailability(car.id)" 
+                        class="text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 transition-colors">
+                  [ Override_Status ]
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h3 class="text-sm font-black uppercase tracking-[0.3em] mb-6 italic text-zinc-400">03. Recent Transaction Data Logs</h3>
+    <div class="bg-white border border-zinc-100 rounded-[3rem] overflow-hidden shadow-sm">
+      <table class="w-full text-left">
+        <thead class="bg-zinc-50 border-b border-zinc-100">
+          <tr>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Client</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Allocated_Unit</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Status</th>
+            <th class="px-8 py-6 text-[10px] font-black uppercase text-zinc-400 tracking-widest text-right">Net_Revenue</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-50">
+          @for (b of db.bookings(); track b.id) {
+            <tr class="hover:bg-zinc-50/50 transition-colors">
+              <td class="px-8 py-6 font-bold text-zinc-900 uppercase italic text-xs">{{b.user}}</td>
+              <td class="px-8 py-6">
+                <p class="text-zinc-900 font-black text-xs uppercase">{{b.carName}}</p>
+                <p class="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">#{{b.id}}</p>
+              </td>
+              <td class="px-8 py-6">
+                <span [class]="getStatusClass(b.status)" 
+                      class="px-3 py-1 rounded-full text-[8px] font-black uppercase">
+                  {{ b.status?.replace('_', ' ') }}
+                </span>
+              </td>
+              <td class="px-8 py-6 text-right font-black text-2xl italic text-zinc-900">${{ b.total?.toLocaleString() }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="px-8 py-24 text-center">
+                <p class="text-[10px] font-black text-zinc-300 uppercase tracking-[0.5em]">No_Transaction_History_Found</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

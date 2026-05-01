@@ -1,0 +1,231 @@
+<div class="min-h-screen bg-white pb-24 selection:bg-black selection:text-white font-sans">
+  <div [class]="(car()?.isAvailable && !isDateConflict()) ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'" 
+       class="w-full py-6 px-8 text-center text-[10px] font-black uppercase tracking-[0.5em] border-b border-zinc-100 transition-colors duration-500">
+    {{ (car()?.isAvailable && !isDateConflict()) ? '● System Status: Unit Ready for Immediate Dispatch' : '○ System Status: UNIT_ENGAGED / UNDER_MAINTENANCE' }}
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 mt-16 grid lg:grid-cols-12 gap-20">
+    
+    <div class="lg:col-span-8 space-y-16">
+      <section>
+        <div class="rounded-[4rem] overflow-hidden bg-zinc-100 aspect-video mb-12 shadow-3xl shadow-zinc-200 group relative">
+          <img [src]="activeImage()" class="w-full h-full object-cover transition-all duration-700" [alt]="car()?.model">
+          
+          <div class="absolute bottom-10 left-10 flex gap-4 bg-black/20 backdrop-blur-xl p-4 rounded-[2rem] border border-white/10">
+            @for (v of car()?.variants; track v.name) {
+              <button (click)="selectedColor.set(v)" 
+                      [style.background-color]="v.hex"
+                      [class.ring-4]="selectedColor()?.name === v.name"
+                      class="w-10 h-10 rounded-full ring-white/50 transition-all hover:scale-110 shadow-lg">
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="flex items-center justify-between px-4">
+             <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Unit_Registry_Onward</h3>
+             <span class="px-3 py-1 bg-zinc-100 rounded-full text-[8px] font-black uppercase">24h Maintenance Buffer Active</span>
+          </div>
+          
+          <div class="grid gap-4">
+            @for (res of carBookings(); track res.id) {
+              <div class="flex items-center justify-between p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 animate-in fade-in slide-in-from-bottom-2">
+                <div>
+                  <p class="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">Engaged_Period</p>
+                  <p class="text-sm font-black italic uppercase text-zinc-900">{{ formatDisplayDate(res.startDate) }} — {{ formatDisplayDate(res.endDate) }}</p>
+                </div>
+                <div class="text-right hidden sm:block">
+                  <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Maintenance Protocol Follows</span>
+                </div>
+              </div>
+            } @empty {
+              <div class="p-12 rounded-[2.5rem] border-2 border-dashed border-zinc-100 text-center">
+                <p class="text-[10px] font-black uppercase text-zinc-300 tracking-widest">No Forward Reservations Detected</p>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="lg:col-span-4">
+      <div class="sticky top-32 p-12 bg-zinc-950 text-white rounded-[4rem] shadow-4xl shadow-black/30 border border-white/5">
+        <header class="mb-12">
+          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-3">Unit SR-0{{car()?.id}}</p>
+          <h1 class="text-5xl font-black tracking-tighter leading-none italic mb-2">{{ car()?.brand }}</h1>
+          <h2 class="text-2xl font-bold tracking-tighter text-zinc-500 italic">{{ car()?.model }}</h2>
+        </header>
+
+        @if (car()?.isAvailable) {
+          <div class="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+            
+            <div class="space-y-4">
+              @if (showLogisticsAdvisory()) {
+                <div class="p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-700">
+                  <div class="flex flex-col gap-4">
+                    <div class="flex items-start gap-4">
+                      <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center shrink-0">
+                        <span class="text-indigo-400 text-sm">✨</span>
+                      </div>
+                      <div>
+                        <p class="text-[9px] font-black uppercase text-indigo-400 tracking-[0.2em] mb-1">Logistics_Prep_Notice</p>
+                        <p class="text-[11px] text-zinc-400 font-medium leading-relaxed">
+                          For peak unit readiness, we recommend a 2-hour window.
+                        </p>
+                      </div>
+                    </div>
+                    <button (click)="adjustToReadyTime()" 
+                            class="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest text-indigo-300 transition-all">
+                      Optimize Schedule for Readiness
+                    </button>
+                  </div>
+                </div>
+              } @else if (hasOptimized()) {
+                <div class="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[2rem] animate-in zoom-in-95 duration-500">
+                  <div class="flex items-center gap-3">
+                    <span class="text-emerald-500 text-xs">✓</span>
+                    <p class="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Schedule_Optimized: Unit will be prepared on time</p>
+                  </div>
+                </div>
+              }
+
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block ml-2">Pick-up_Schedule (PHT)</label>
+              <div class="relative group">
+                <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 z-10">📅</div>
+                <input 
+                  type="datetime-local" 
+                  [min]="minDateTime"
+                  [ngModel]="selectedStartTime()"
+                  (ngModelChange)="onDateManualChange($event)"
+                  class="full-click-input w-full bg-white text-black border-none p-5 rounded-2xl text-xs font-black uppercase italic tracking-tighter outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all cursor-pointer"
+                  style="color-scheme: light;"
+                >
+              </div>
+            </div>
+
+            @if (isDateConflict()) {
+              <div class="p-6 bg-amber-500/10 border border-amber-500/30 rounded-3xl animate-in slide-in-from-top-4">
+                <div class="flex flex-col gap-4">
+                  <div class="flex items-start gap-4">
+                    <span class="text-amber-500 text-xl">🕒</span>
+                    <div>
+                      <p class="text-[10px] font-black uppercase text-amber-500 tracking-widest mb-1">Schedule Adjustment Needed</p>
+                      <p class="text-[11px] text-amber-200/70 font-medium leading-relaxed">
+                        The selected time conflicts with an already existing reservation or maintenance protocols. 
+                      </p>
+                    </div>
+                  </div>
+                  
+                  @if (nextAvailableSlot()) {
+                    <button (click)="applySuggestedTime()" 
+                            class="w-full py-3 bg-amber-500/20 hover:bg-amber-500/40 border border-amber-500/50 rounded-2xl text-[10px] font-black uppercase tracking-widest text-amber-400 transition-all">
+                      ⚡ Auto-Select Next Available: {{ formatDisplayDate(nextAvailableSlot()!) }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="space-y-4">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block ml-2">Reservation_Period (Days)</label>
+              <div class="flex items-center bg-zinc-900 border border-white/10 rounded-[2.5rem] p-2">
+                <button (click)="updateDays(-1)" class="w-16 h-16 flex items-center justify-center rounded-[1.8rem] bg-zinc-800 text-white hover:bg-rose-500 transition-all active:scale-90">-</button>
+                <div class="flex-1 text-center">
+                  <span class="text-5xl font-black italic text-white">{{ days }}</span>
+                </div>
+                <button (click)="updateDays(1)" class="w-16 h-16 flex items-center justify-center rounded-[1.8rem] bg-zinc-800 text-white hover:bg-emerald-500 transition-all active:scale-90">+</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <button (click)="serviceType = 'pickup'" [class]="serviceType === 'pickup' ? 'bg-white text-black' : 'bg-zinc-900 text-zinc-500'" class="py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-white/5 transition-all">Self_Pickup</button>
+              <button (click)="serviceType = 'delivery'" [class]="serviceType === 'delivery' ? 'bg-white text-black' : 'bg-zinc-900 text-zinc-500'" class="py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-white/5 transition-all">Delivery</button>
+            </div>
+
+            @if (serviceType === 'delivery') {
+              <div class="space-y-4 animate-in slide-in-from-top-2">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block ml-2">Destination_Address</label>
+                <textarea [(ngModel)]="deliveryAddress" placeholder="Enter coordinates..." class="w-full bg-zinc-900 border border-white/10 p-5 rounded-2xl text-xs font-bold text-white outline-none h-24 resize-none focus:border-emerald-500 transition-colors"></textarea>
+              </div>
+            }
+
+            <div class="pt-8 border-t border-white/10 flex justify-between items-end">
+              <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Total Quote</span>
+              <span class="text-5xl font-black italic text-emerald-400">$ {{ (car()?.pricePerDay || 0) * days }}</span>
+            </div>
+
+            @if (showLoginWarning()) {
+              <div class="p-4 bg-rose-500/10 border border-rose-500/50 rounded-2xl text-[9px] font-black text-rose-500 uppercase tracking-widest text-center animate-in slide-in-from-top-2">
+                Identity Verification Required.
+              </div>
+            }
+
+            <button 
+              (click)="confirmBooking()" 
+              [disabled]="isDateConflict() || showSuccess()"
+              [class.opacity-30]="isDateConflict()"
+              [class.cursor-not-allowed]="isDateConflict()"
+              class="w-full py-8 bg-white text-black rounded-[2.5rem] font-black text-xl hover:bg-emerald-400 disabled:hover:bg-white transition-all active:scale-95 uppercase">
+              {{ isDateConflict() ? 'Protocol Conflict' : 'Confirm Dispatch' }}
+            </button>
+          </div>
+        } @else {
+          <div class="py-16 text-center animate-in fade-in zoom-in-95 duration-500">
+            <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter">DISPATCH_HALTED</h3>
+            <button routerLink="/" class="mt-8 w-full py-5 border border-white/10 rounded-[1.5rem] text-[9px] font-black uppercase text-zinc-400 hover:bg-white hover:text-black transition-all">Return to Fleet</button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (showSuccess()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-overlay">
+      <div class="max-w-xl w-full bg-zinc-950 text-white rounded-[5rem] border border-white/10 animate-pop p-16 text-center shadow-4xl">
+        <h2 class="text-6xl font-black uppercase italic tracking-tighter mb-4">Unit_Secured</h2>
+        <p class="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-8">#{{transactionId}}</p>
+        
+        <div class="bg-white/5 rounded-3xl p-8 mb-12 border border-white/10 text-center">
+           <p class="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2">Expected Return Window</p>
+           <p class="text-xl font-black italic text-emerald-400 uppercase">{{endDate}}</p>
+        </div>
+
+        <button (click)="closeAndExit()" class="w-full py-8 bg-white text-black rounded-[2.5rem] font-black uppercase transition-all hover:bg-emerald-400">Return to Dashboard</button>
+      </div>
+    </div>
+  }
+  
+
+  @if (db.modal().show) {
+    <div class="fixed inset-0 z-[999] flex items-center justify-center p-6 animate-in fade-in duration-300">
+      <div class="absolute inset-0 bg-black/90 backdrop-blur-md" (click)="db.closePopup()"></div>
+      
+      <div class="relative max-w-lg w-full bg-zinc-950 border border-white/10 rounded-[4rem] p-12 shadow-4xl animate-in zoom-in-95 duration-300">
+        <div class="text-center space-y-6">
+          <div [class]="db.modal().type === 'error' ? 'text-rose-500' : 'text-emerald-500'" class="text-[10px] font-black uppercase tracking-[0.5em]">
+            {{ db.modal().type === 'error' ? '(!) System_Alert' : '● System_Message' }}
+          </div>
+          
+          <h2 class="text-4xl font-black italic tracking-tighter text-white uppercase leading-none">
+            {{ db.modal().title }}
+          </h2>
+          
+          <p class="text-zinc-400 text-sm font-medium leading-relaxed">
+            {{ db.modal().message }}
+          </p>
+
+          <div class="pt-8 space-y-4">
+            <button (click)="db.closePopup()" class="w-full py-6 bg-white text-black rounded-3xl font-black uppercase text-xs hover:bg-emerald-400 transition-all">
+              Adjust Schedule
+            </button>
+            
+            <button routerLink="/" (click)="db.closePopup()" class="w-full py-6 bg-zinc-900 text-zinc-400 rounded-3xl font-black uppercase text-xs border border-white/5 hover:bg-zinc-800 transition-all">
+              View Other Units
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

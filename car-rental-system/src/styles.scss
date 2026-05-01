@@ -1,0 +1,41 @@
+@import "../node_modules/tailwindcss/index.css";
+
+// body::before {
+//   content: "CSS IS LOADING";
+//   display: block;
+//   background: red;
+//   color: white;
+//   font-weight: bold;
+//   text-align: center;
+//   padding: 10px;
+// }
+
+// .antialiased ::before {
+//   content: "TAILWIND IS WORKING" !important;
+//   background: green !important;
+// }
+
+
+@source "./app/**/*.{html,ts}"; /* This tells Tailwind EXACTLY where to look for your classes */
+
+/* Replace @import "tailwindcss" with this: */
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+/* 3. Global Reset & Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: #f9fafb; /* zinc-50 */
+}
+
+
+
+h1, h2, .font-display {
+  font-family: var(--font-display);
+}

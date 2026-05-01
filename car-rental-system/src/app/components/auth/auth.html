@@ -1,0 +1,102 @@
+<div class="min-h-[calc(100vh-80px)] flex items-center justify-center bg-zinc-50 px-6 py-12 font-sans">
+  <div class="w-full max-w-[440px] bg-white rounded-[3rem] p-12 shadow-2xl shadow-zinc-200 border border-zinc-100">
+    
+    <div class="flex flex-col items-center mb-10 group cursor-pointer" (dblclick)="toggleAdmin()">
+      <div [class]="isAdminMode() ? 'bg-red-600 shadow-red-200' : 'bg-black'" 
+           class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 shadow-xl">
+        <span class="text-white font-black text-xl italic tracking-tighter">KR</span>
+      </div>
+      
+      <h1 class="text-3xl font-black tracking-tighter uppercase text-center">
+        {{ isAdminMode() ? 'Admin Access' : (isLogin() ? 'Welcome Back' : 'Join the Fleet') }}
+      </h1>
+      
+      <p class="text-zinc-400 font-bold text-[9px] uppercase tracking-[0.2em] mt-2 text-center italic">
+        {{ isAdminMode() ? 'Terminal_Security_Active' : 'Premium_Mobility_Solutions' }}
+      </p>
+    </div>
+
+    <form (submit)="$event.preventDefault(); handleAuth()" class="space-y-3">
+      
+      @if (!isLogin() && !isAdminMode()) {
+        <div class="space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div class="h-4 flex items-end px-2">
+            <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400">User Identity</label>
+          </div>
+          <input type="text" [(ngModel)]="name" name="name" placeholder="FULL NAME"
+                 class="w-full p-5 rounded-2xl bg-zinc-50 border-2 border-zinc-100 text-sm font-black uppercase tracking-wider outline-none focus:border-black focus:bg-white transition-all placeholder:text-zinc-300">
+        </div>
+
+        <div class="space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div class="h-4 flex items-end justify-between px-2">
+            <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Contact Number</label>
+            @if (getErrorMessage('phone')) {
+              <span class="text-[8px] font-black text-rose-600 uppercase italic animate-in slide-in-from-right-2">{{ getErrorMessage('phone') }}</span>
+            }
+          </div>
+          <input type="text" [(ngModel)]="phone" name="phone" placeholder="09XXXXXXXXX"
+                 [class.border-rose-500]="getErrorMessage('phone')"
+                 class="w-full p-5 rounded-2xl bg-zinc-50 border-2 border-zinc-100 text-sm font-black uppercase tracking-wider outline-none focus:border-black focus:bg-white transition-all placeholder:text-zinc-300">
+        </div>
+      }
+
+      <div class="space-y-1">
+        <div class="h-4 flex items-end justify-between px-2">
+          <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Email Access</label>
+          @if (getErrorMessage('email')) {
+            <span class="text-[8px] font-black text-rose-600 uppercase italic animate-in slide-in-from-right-2">{{ getErrorMessage('email') }}</span>
+          }
+        </div>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="NAME@EMAIL.COM"
+               [class.border-rose-500]="getErrorMessage('email')"
+               class="w-full p-5 rounded-2xl bg-zinc-50 border-2 border-zinc-100 text-sm font-black uppercase tracking-wider outline-none focus:border-black focus:bg-white transition-all placeholder:text-zinc-300">
+      </div>
+
+      <div class="space-y-1">
+        <div class="h-4 flex items-end justify-between px-2">
+          <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Password</label>
+          @if (getErrorMessage('password')) {
+            <span class="text-[8px] font-black text-rose-600 uppercase italic animate-in slide-in-from-right-2">{{ getErrorMessage('password') }}</span>
+          }
+        </div>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••"
+               [class.border-rose-500]="getErrorMessage('password')"
+               class="w-full p-5 rounded-2xl bg-zinc-50 border-2 border-zinc-100 text-sm font-bold outline-none focus:border-black focus:bg-white transition-all placeholder:text-zinc-300">
+      </div>
+
+      <button type="submit" 
+              [disabled]="isFormInvalid()"
+              class="w-full py-6 mt-6 rounded-3xl font-black text-[11px] uppercase tracking-[0.4em] transition-all active:scale-[0.98] shadow-lg disabled:opacity-20 disabled:grayscale"
+              [class]="isAdminMode() ? 'bg-red-600 text-white shadow-red-200' : 'bg-black text-white shadow-black/10'">
+        {{ isLogin() ? 'Login' : 'Sign Up' }}
+      </button>
+    </form>
+
+    @if (!isAdminMode()) {
+      <div class="mt-8 pt-8 border-t border-zinc-100 text-center">
+        <button (click)="isLogin.set(!isLogin())" class="text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">
+          {{ isLogin() ? "Don't have an account? → Sign Up" : "Already have an account? → Login" }}
+        </button>
+      </div>
+    } @else {
+      <div class="mt-8 text-center">
+        <button (click)="isAdminMode.set(false)" class="text-[9px] font-black uppercase tracking-widest text-red-600 hover:underline italic">
+          Terminate_Admin_Protocol
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (db.modal().show) {
+    <div class="fixed inset-0 z-[999] flex items-center justify-center p-6">
+      <div class="absolute inset-0 bg-black/90 backdrop-blur-md" (click)="db.closePopup()"></div>
+      <div class="relative max-w-lg w-full bg-zinc-950 border border-white/10 rounded-[4rem] p-12 text-center animate-in zoom-in-95">
+        <h2 class="text-white text-4xl font-black italic uppercase mb-4 tracking-tighter">{{ db.modal().title }}</h2>
+        <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed mb-8">{{ db.modal().message }}</p>
+        <button (click)="db.closePopup()" class="w-full py-6 bg-white text-black rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-zinc-200 transition-all">
+          Acknowledge_System_Return
+        </button>
+      </div>
+    </div>
+  }
+</div>

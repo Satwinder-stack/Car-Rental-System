@@ -1,0 +1,92 @@
+.search-container {
+  position: relative;
+  max-width: 600px;
+  margin-bottom: 3rem;
+
+  input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px solid #e4e4e7; // zinc-200
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+
+    &:focus {
+      outline: none;
+      border-color: #000;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+  }
+}
+
+.car-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.5rem;
+}
+
+.car-card {
+  background: white;
+  border-radius: 2rem;
+  padding: 1rem;
+  border: 1px solid #f4f4f5;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: #e4e4e7;
+  }
+
+  .image-wrapper {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: #f1f5f9;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .content {
+    padding: 1.5rem 0.5rem 0.5rem;
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #18181b;
+      margin: 0;
+    }
+
+    .brand {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #a1a1aa;
+    }
+  }
+}
+
+.btn-book {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
