@@ -3,12 +3,14 @@ import { DatabaseService, User } from './database';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 describe('DatabaseService', () => {
   let service: DatabaseService;
   let localStorageMock: { [key: string]: string };
   let httpClientSpy: jasmine.SpyObj<HttpClient>;
   let routerSpy: jasmine.SpyObj<Router>;
+  const apiUrl = environment.apiUrl;
 
   beforeEach(() => {
     // Mock localStorage
@@ -61,7 +63,7 @@ describe('DatabaseService', () => {
       service.massMigrate();
 
       expect(httpClientSpy.post).toHaveBeenCalledWith(
-        'http://localhost:3000/api/completed_bookings/mass-migrate',
+        `${apiUrl}/completed_bookings/mass-migrate`,
         {}
       );
       expect(console.log).toHaveBeenCalledWith('🚀 Attempting Mass Migration to Port 3000...');
@@ -156,7 +158,7 @@ describe('DatabaseService', () => {
       service.login('test@example.com', 'password123');
 
       expect(httpClientSpy.post).toHaveBeenCalledWith(
-        'http://localhost:3000/api/auth/login',
+        `${apiUrl}/api/auth/login`,
         { email: 'test@example.com', password: 'password123' }
       );
       expect(service.currentUser()?.email).toBe('test@example.com');
@@ -279,7 +281,7 @@ describe('DatabaseService', () => {
       service.toggleAvailability(1);
 
       expect(httpClientSpy.patch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/cars/1',
+        `${apiUrl}/api/cars/1`,
         { isAvailable: false }
       );
       expect(service.syncWithDatabase).toHaveBeenCalled();
