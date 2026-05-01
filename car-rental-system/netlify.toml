@@ -1,0 +1,9 @@
+[build]
+  base = "car-rental-system"
+  command = "npm run build"
+  publish = "car-rental-system/dist/car-rental-system/browser"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
