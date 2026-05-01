@@ -1,6 +1,6 @@
 const fs = require('fs');
+const path = require('path');
 
-// Get the backend URL from Netlify's environment variables or default to the live Render backend
 const apiUrl = process.env.NG_APP_API_URL || 'https://karlrental-backend.onrender.com';
 
 const envConfigFile = `export const environment = {
@@ -9,6 +9,10 @@ const envConfigFile = `export const environment = {
 };
 `;
 
-// Write the configuration directly into Angular's production environment file path
-fs.writeFileSync('./src/environments/environment.prod.ts', envConfigFile);
-console.log('Successfully generated environment.prod.ts');
+const targetPath = path.join(__dirname, './src/environments/environment.prod.ts');
+
+// Ensure the environments directory exists
+fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+
+fs.writeFileSync(targetPath, envConfigFile);
+console.log(`Generated environment.prod.ts pointing to: ${apiUrl}`);
