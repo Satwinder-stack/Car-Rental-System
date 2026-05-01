@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://karlrental-backend.onrender.com'
+  production: true, // or false respectively
+  apiUrl: 'https://karlrental-backend.onrender.com/api' // <-- Note the addition of /api
 };
