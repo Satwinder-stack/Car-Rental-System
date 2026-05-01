@@ -1,7 +1,7 @@
 [build]
   base = "car-rental-system"
   command = "npm run build"
-  publish = "car-rental-system/dist/car-rental-system/browser"
+  publish = "dist/car-rental-system/browser"
 
 [[redirects]]
   from = "/*"

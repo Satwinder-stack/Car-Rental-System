@@ -2,6 +2,7 @@ import { Injectable, signal, effect, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 // --- INTERFACES ---
 
@@ -39,7 +40,7 @@ export interface CarVariant {
 export class DatabaseService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl;
 
   // --- SIGNALS (STATE MANAGEMENT) ---
   cars = signal<Car[]>([]);
@@ -86,8 +87,13 @@ export class DatabaseService {
   syncWithDatabase() {
     // 1. Fetch Cars
     this.http.get<Car[]>(`${this.apiUrl}/cars`).subscribe({
-      next: (data) => this.cars.set(data),
-      error: () => console.warn("Backend offline.")
+      next: (data) => {
+        console.log("🚗 Cars successfully loaded from backend:", data);
+        this.cars.set(data);
+      },
+      error: (err) => {
+        console.error("❌ Backend offline or could not load cars:", err);
+      }
     });
 
     // 2. Fetch ALL Bookings
